@@ -1,0 +1,101 @@
+CREATE TABLE Employees (
+    EmployeeID int PRIMARY KEY,
+    FirstName varchar(50),
+    LastName varchar(50),
+    Gender varchar(10),
+    Age int,
+    Email varchar(50),
+    PhoneNumber varchar(10)
+
+);
+
+
+CREATE TABLE Clients (
+    ClientID int PRIMARY KEY,
+    ClientName varchar(50),
+    RepresentativeID int,
+    Revenue int
+
+);
+
+-- Creating Tables, and inserting data into them below
+-- Phone numbers, people, and emails completely randomized for this project
+
+INSERT INTO Employees VALUES
+(1, 'Jeff', 'Thomas', 'M', 32, 'jeffthom@aol.com', '9124829529'),
+(2, 'Suzie', 'Landerson', 'F', 27, 'suuuzie@comcast.net', '4915929512'),
+(3, 'Ronald', 'Smith', 'M', 56, 'Ronnyt@gmail.com', '9209822492'),
+(4, 'Sam', 'Lopez', 'F', 47, 'Samlo@aol.com', '9208320518'),
+(5, 'Jessica', 'Phillips', 'F', 29, 'Jessyes@aol.com', '5136910528'),
+(6, 'Makenna', 'Aron', 'F', 41, 'Makersar@gmail.com', '8159226731'),
+(7, 'Bart', 'Johnson', 'M', 51, 'bartjohnsonnn@hotmail.com', '9206925821'),
+(8, 'Todd', 'Cardilla', 'M', 35, 'toddingtonc@gmail.com', '4915820632'),
+(9, 'Lindsey', 'Brewer', 'F', 55, 'Lbrewster@hotmail.com', '9206729512'),
+(10, 'Andy', 'Arnold', 'M', 25, 'Aarnold84@gmail.com', '5135914062');
+
+INSERT INTO Clients VALUES
+(100, 'Bentson LLC', 5, 500000),
+(101, 'Tyson Law', 2, 250000),
+(102, 'Charleston Banking', 1, 1000000),
+(103, 'Thompson Roofers', 6, 245000),
+(104, 'Candleton Dental', 3, 150000),
+(105, 'Paulson Groceries', 4, 750000),
+(106, 'Plymouth Baseball', 7, 85000),
+(107, 'Dynamo', 9, 600000);
+
+-- Create a foreign key to better integrate tables
+
+ALTER TABLE Clients
+ADD FOREIGN KEY (RepresentativeID) 
+REFERENCES Employees(EmployeeID)
+ON DELETE SET NULL;
+
+-- Checking if join works by viewing all employees and respective companies
+
+SELECT Employees.FirstName, Employees.LastName, Clients.ClientName, Clients.RepresentativeID
+FROM Employees
+LEFT JOIN Clients
+ON Employees.EmployeeID = Clients.RepresentativeID;
+
+-- What is the average revenue managed by gender?
+
+SELECT Employees.Gender, AVG(Clients.Revenue)
+FROM Employees
+INNER JOIN Clients
+ON Employees.EmployeeID = Clients.RepresentativeID
+GROUP BY Employees.Gender;
+
+-- Select only the employees who have a 'gmail' email address.
+
+SELECT Employees.FirstName, Employees.LastName, Employees.Email
+FROM Employees
+WHERE Employees.Email LIKE '%gmail.com'
+ORDER BY Employees.LastName ASC;
+
+-- Count the number of clients with a revenue of over $250,000
+
+SELECT COUNT(*)
+FROM Employees
+INNER JOIN Clients
+ON Employees.EmployeeID = Clients.RepresentativeID
+WHERE Clients.Revenue > 250000;
+
+-- Creating a CASE statement to determine what 'counties' phone numbers are associated with
+
+SELECT Employees.PhoneNumber, Employees.EmployeeID,
+CASE 
+    WHEN Employees.PhoneNumber LIKE '920%' THEN 'Tixon County'
+    WHEN Employees.PhoneNumber LIKE '491%' THEN 'Bryce County'
+    WHEN Employees.PhoneNumber LIKE '513%' THEN 'Druber County'
+    ELSE 'Out of State'
+    END AS County_Region
+FROM Employees;
+
+-- Determine the highest and lowest client revenue for each employee (if multiple clients were available)
+
+SELECT Employees.EmployeeID, Employees.FirstName, Employees.LastName, MAX(Clients.Revenue), MIN(Clients.Revenue)
+FROM Employees
+INNER JOIN Clients
+ON Employees.EmployeeID = Clients.RepresentativeID
+GROUP BY Employees.EmployeeID
+ORDER BY Employees.EmployeeID ASC;
